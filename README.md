@@ -7,9 +7,10 @@ O código segue a arquitetura simples `Controller → Service → Repository →
 ## Requisitos atuais
 
 - Docker com Docker Compose;
-- arquivo `.env` baseado em `.env.example`.
+- arquivo `.env` baseado em `.env.example`;
+- IntelliJ IDEA ou outra ferramenta compatível com arquivos HTTP, caso se deseje executar os exemplos de requisição diretamente pelo editor.
 
-Java 21 e Maven são necessários somente para desenvolvimento e execução fora dos containers. A integração contínua pertence à próxima etapa.
+Java 21 e Maven são necessários somente para desenvolvimento e execução fora dos containers.
 
 ## Execução com Docker
 
@@ -39,15 +40,19 @@ docker compose up -d postgres
 
 O Spring importa o `.env` local de forma opcional; variáveis de ambiente do sistema continuam podendo sobrescrever esses valores. Nesse modo são necessários Java 21 e Docker.
 
-Para compilar e executar os testes unitários e de contrato HTTP:
+## Testes e cobertura com JaCoCo
+
+O JaCoCo mede a cobertura de linhas alcançada pelos testes automatizados. Para compilar o projeto, executar os testes e verificar a cobertura, utilize:
 
 ```bash
-./mvnw test
+./mvnw clean verify
 ```
+
+O relatório HTML será gerado em `target/site/jacoco/index.html`. O projeto exige cobertura mínima global de 70% das linhas; por isso, a fase `verify` falha quando esse limite não é alcançado. O mesmo comando é executado pela integração contínua.
 
 ## Integração contínua
 
-O GitHub Actions executa `./mvnw clean verify` com Java 21 em todo `push` para a `main` e em todo pull request destinado à `main`. Essa verificação compila, empacota e executa a suíte de testes do projeto, usando cache das dependências Maven.
+O GitHub Actions executa `./mvnw clean verify` com Java 21 em todo `push` para a `main` e em todo pull request destinado à `main`. Essa verificação compila, empacota, executa a suíte de testes e faz o build falhar se a cobertura de linhas medida pelo JaCoCo ficar abaixo de 70%, usando cache das dependências Maven.
 
 ## Dados iniciais
 
@@ -59,6 +64,25 @@ O seed cria:
 - técnico 3 (Carlos/COTIC) e técnica 4 (Diana/COMAN).
 
 Esses IDs permitem percorrer o fluxo completo no arquivo [api.http](api.http). Não existem endpoints de criação, alteração ou exclusão de usuários.
+
+## Requisições com o REST Client
+
+O arquivo [api.http](api.http) reúne exemplos dos endpoints e pode ser executado pelo REST Client do IntelliJ IDEA. Com a aplicação disponível em `http://localhost:8080`, abra o arquivo e selecione o ícone de execução ao lado da requisição desejada. A variável `baseUrl`, declarada no início do arquivo, é reutilizada em todos os exemplos.
+
+As requisições podem alterar dados persistidos. Portanto, os identificadores apresentados nos exemplos devem ser ajustados quando o banco já possuir registros criados em execuções anteriores.
+
+## Fluxo feliz para verificação da aplicação
+
+Um teste manual simples pode ser realizado, na ordem abaixo, com as requisições correspondentes do arquivo `api.http`:
+
+1. Execute **Abrir chamado como Ana**, utilizando a solicitante `1` e a categoria `1`. A resposta esperada é `201 Created`, com status `ABERTO`.
+2. Anote o identificador retornado e utilize-o nas requisições seguintes.
+3. Execute **Técnico Carlos assume chamado**, utilizando o técnico `3`. A resposta esperada é `200 OK`, com status `EM_ATENDIMENTO`.
+4. Execute **Técnico atribuído adiciona interação**. A resposta esperada é `201 Created`.
+5. Execute **Técnico atribuído resolve**. A resposta esperada é `200 OK`, com status `RESOLVIDO`, solução e data de fechamento preenchidas.
+6. Execute **Detalhar chamado e histórico** para confirmar os dados finais e a interação registrada.
+
+Esse fluxo demonstra a abertura, a atribuição, o registro de histórico e a resolução de um chamado conforme as regras de negócio.
 
 ## Fluxo do chamado
 

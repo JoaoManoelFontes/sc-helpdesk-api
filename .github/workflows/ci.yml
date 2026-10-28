@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build-and-test:
-    name: Build and tests
+    name: Build, tests and coverage
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -28,5 +28,5 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Build and run tests
+      - name: Build, run tests and enforce 70% coverage
         run: ./mvnw --batch-mode --no-transfer-progress clean verify
