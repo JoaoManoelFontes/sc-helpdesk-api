@@ -1,0 +1,9 @@
+.git
+.github
+.idea
+.env
+target
+*.iml
+HELP.md
+OVERVIEW_PROJETO.md
+Projeto_API_Sistema_de_Chamados_IFRN.pdf

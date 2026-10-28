@@ -1,0 +1,143 @@
+@baseUrl = http://localhost:8080
+
+### Cadastrar setor
+POST {{baseUrl}}/setores
+Content-Type: application/json
+
+{
+  "nome": "Audiovisual",
+  "sigla": "AV"
+}
+
+### Listar setores
+GET {{baseUrl}}/setores?nome=coordenação&page=0&size=10&sort=nome,asc
+
+### Buscar setor
+GET {{baseUrl}}/setores/1
+
+### Atualizar setor
+PUT {{baseUrl}}/setores/1
+Content-Type: application/json
+
+{
+  "nome": "Coordenação de Tecnologia da Informação e Comunicação Atualizada",
+  "sigla": "COTIC"
+}
+
+### Excluir setor sem vínculos (use o ID criado no primeiro exemplo)
+DELETE {{baseUrl}}/setores/3
+
+### Cadastrar categoria
+POST {{baseUrl}}/categorias
+Content-Type: application/json
+
+{
+  "nome": "Projetores",
+  "descricao": "Problemas em projetores e recursos audiovisuais.",
+  "setorId": 1
+}
+
+### Listar categorias com filtros
+GET {{baseUrl}}/categorias?nome=rede&setorId=1&page=0&size=10&sort=nome,asc
+
+### Buscar categoria
+GET {{baseUrl}}/categorias/1
+
+### Atualizar categoria
+PUT {{baseUrl}}/categorias/1
+Content-Type: application/json
+
+{
+  "nome": "Rede e Internet",
+  "descricao": "Problemas de conectividade, Wi-Fi e rede cabeada.",
+  "setorId": 1
+}
+
+### Excluir categoria sem chamados (ajuste o ID)
+DELETE {{baseUrl}}/categorias/5
+
+### Listar categorias do setor
+GET {{baseUrl}}/setores/1/categorias?page=0&size=10&sort=nome,asc
+
+### Listar usuários do seed
+GET {{baseUrl}}/usuarios?page=0&size=10&sort=nome,asc
+
+### Buscar usuário
+GET {{baseUrl}}/usuarios/1
+
+### Abrir chamado como Ana (solicitante 1)
+POST {{baseUrl}}/chamados
+Content-Type: application/json
+
+{
+  "titulo": "Wi-Fi indisponível",
+  "descricao": "Os computadores do laboratório não acessam a rede.",
+  "local": "Laboratório 01",
+  "prioridade": "ALTA",
+  "solicitanteId": 1,
+  "categoriaId": 1
+}
+
+### Listar chamados com filtros combinados
+GET {{baseUrl}}/chamados?status=ABERTO&prioridade=ALTA&setorId=1&dataInicio=2026-01-01T00:00:00&dataFim=2026-12-31T23:59:59&page=0&size=10&sort=dataAbertura,desc
+
+### Detalhar chamado e histórico
+GET {{baseUrl}}/chamados/1
+
+### Listar chamados relacionados ao usuário
+GET {{baseUrl}}/usuarios/1/chamados?status=ABERTO&page=0&size=10&sort=dataAbertura,desc
+
+### Técnico Carlos (3/COTIC) assume chamado da categoria COTIC
+PATCH {{baseUrl}}/chamados/1/assumir
+Content-Type: application/json
+
+{
+  "tecnicoId": 3
+}
+
+### Solicitante adiciona interação
+POST {{baseUrl}}/chamados/1/interacoes
+Content-Type: application/json
+
+{
+  "usuarioId": 1,
+  "texto": "O problema continua em todos os computadores."
+}
+
+### Técnico atribuído adiciona interação
+POST {{baseUrl}}/chamados/1/interacoes
+Content-Type: application/json
+
+{
+  "usuarioId": 3,
+  "texto": "Verificando o ponto de acesso do laboratório."
+}
+
+### Técnico atribuído resolve
+PATCH {{baseUrl}}/chamados/1/resolver
+Content-Type: application/json
+
+{
+  "tecnicoId": 3,
+  "solucao": "O ponto de acesso foi reiniciado e reconfigurado."
+}
+
+### Abrir outro chamado para testar cancelamento
+POST {{baseUrl}}/chamados
+Content-Type: application/json
+
+{
+  "titulo": "Tomada sem energia",
+  "descricao": "A tomada ao lado do quadro não funciona.",
+  "local": "Sala 10",
+  "solicitanteId": 2,
+  "categoriaId": 3
+}
+
+### Solicitante original cancela enquanto ABERTO (ajuste o ID)
+PATCH {{baseUrl}}/chamados/2/cancelar
+Content-Type: application/json
+
+{
+  "solicitanteId": 2
+}
